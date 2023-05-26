@@ -141,7 +141,7 @@ export const startRoutes = (myChatId, adminsId) => {
     }))
     app.post('/addProduct', (async (req, res) => {
 
-        const {category, categoryRu, name, description, price, isStop, queryId} = req.body;
+        const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
         console.log({category, categoryRu, name, description, price, isStop, queryId})
 
         try {
@@ -151,6 +151,8 @@ export const startRoutes = (myChatId, adminsId) => {
                 name: name,
                 description: description,
                 price: price,
+                promotionTimeStart,
+                promotionTimeFinish,
                 isStop: isStop
             })
 
@@ -174,7 +176,7 @@ export const startRoutes = (myChatId, adminsId) => {
 
     }))
     app.patch('/updateProduct', (async (req, res) => {
-        const {category, categoryRu, name, description, price, isStop, queryId} = req.body;
+        const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
 
         try {
             await Product.updateOne(
@@ -187,6 +189,8 @@ export const startRoutes = (myChatId, adminsId) => {
                     name,
                     description,
                     price,
+                    promotionTimeStart,
+                    promotionTimeFinish,
                     isStop
                 }
             )
@@ -211,6 +215,7 @@ export const startRoutes = (myChatId, adminsId) => {
             })
         }
     }))
+
     app.delete('/deleteProduct/:id', (async (req, res) => {
         const productId = req.params.id;
 

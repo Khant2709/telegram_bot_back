@@ -8,6 +8,8 @@ const productSchema = new Schema({
     price: {type: Number, required: true},
     count: {type: Number, default: 0},
     isStop: {type: Boolean, default: false},
+    promotionTimeStart: {type: Number},
+    promotionTimeFinish: {type: Number},
 }, {
     timestamps: true
 },);
