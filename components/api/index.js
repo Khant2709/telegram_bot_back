@@ -20,9 +20,6 @@ export const startRoutes = (myChatId, adminsId) => {
         //забираем из запроса данные которые прилетели из фронта
         const {queryId, products, totalPrice, place} = req.body;
 
-        // console.log('products', products)
-        // console.log('totalPrice', totalPrice)
-
         try {
             const productList = await Product.find();
 
@@ -30,11 +27,13 @@ export const startRoutes = (myChatId, adminsId) => {
                 console.log({el})
                 let checkProduct = productList.find(element => element._id.toString() === el._id);
                 if (checkProduct.isStop === true) {
-                    // checkOrder.push(el)
                     return true
                 }
             })
-            console.log({checkOrder})
+
+            const orderList = products.map(el => `Товар:  ${el.name}, количество:  ${el.count}`).join('\n');
+            const stopList = checkOrder.map(el => `Товар:  ${el.name}, к сожалению закончился`).join('\n');
+
             if (checkOrder.length === 0) {
 
                 await bot.answerWebAppQuery(queryId, {
@@ -42,12 +41,9 @@ export const startRoutes = (myChatId, adminsId) => {
                     id: queryId,
                     title: 'Заказ отправлен',
                     input_message_content: {
-                        message_text: 'Поздравляю вы купили на сумму ' + totalPrice
+                        message_text: `Вы сделали заказ на сумму: ${totalPrice}р \n Список заказа:\n${orderList}`
                     }
                 })
-
-                const orderList = products.map(el => `Товар:  ${el.name}, количество:  ${el.count}`).join('\n');
-
 
                 await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/29.webp');
                 await bot.sendMessage(myChatId, `У вас хотят сделать заказ из ${place}`);
@@ -55,7 +51,6 @@ export const startRoutes = (myChatId, adminsId) => {
 
                 return res.status(200).json({})
             } else {
-                const stopList = checkOrder.map(el => `Товар:  ${el.name}, к сожалению закончился`).join('\n');
                 await bot.answerWebAppQuery(queryId, {
                     type: 'article',
                     id: queryId,
@@ -72,9 +67,9 @@ export const startRoutes = (myChatId, adminsId) => {
             await bot.answerWebAppQuery(queryId, {
                 type: 'article',
                 id: queryId,
-                title: 'Неуспешная покупка',
+                title: 'Заказ не отправлен',
                 input_message_content: {
-                    message_text: 'Не удалось приобрести товар'
+                    message_text: 'Не удалось сделать заказ'
                 }
             })
             return res.status(500).json({})
@@ -91,7 +86,7 @@ export const startRoutes = (myChatId, adminsId) => {
         } catch (err) {
             console.log(err)
             return res.status(500).json({
-                message: 'Не удалось получить посты'
+                message: 'Не удалось получить категории'
             })
         }
     }))
@@ -135,7 +130,7 @@ export const startRoutes = (myChatId, adminsId) => {
         } catch (err) {
             console.log(err)
             return res.status(500).json({
-                message: 'Не удалось получить посты'
+                message: 'Не удалось получить товары'
             })
         }
     }))
@@ -200,7 +195,7 @@ export const startRoutes = (myChatId, adminsId) => {
                 id: queryId,
                 title: 'Категория создана',
                 input_message_content: {
-                    message_text: req.body.isStop ? 'Вы добавили товар в стоплист' : 'Вы удалилии товар из стоплиста'
+                    message_text: `Изменения товара ${name} прошло успешно`
                 }
             })
 
@@ -233,7 +228,7 @@ export const startRoutes = (myChatId, adminsId) => {
             await bot.answerWebAppQuery(req.body.queryId, {
                 type: 'article',
                 id: req.body.queryId,
-                title: 'Категория создана',
+                title: ' Товар удален',
                 input_message_content: {
                     message_text: 'Вы удалилии товар'
                 }
