@@ -20,26 +20,53 @@ export const startRoutes = (myChatId, adminsId) => {
         //забираем из запроса данные которые прилетели из фронта
         const {queryId, products, totalPrice, place} = req.body;
 
-        console.log('products', products)
-        console.log('totalPrice', totalPrice)
+        // console.log('products', products)
+        // console.log('totalPrice', totalPrice)
 
         try {
-            await bot.answerWebAppQuery(queryId, {
-                type: 'article',
-                id: queryId,
-                title: 'Успешная покупка',
-                input_message_content: {
-                    message_text: 'Поздравляю вы купили на сумму ' + totalPrice
+            const productList = await Product.find();
+
+            const checkOrder = products.filter(el => {
+                console.log({el})
+                let checkProduct = productList.find(element => element._id.toString() === el._id);
+                if (checkProduct.isStop === true) {
+                    // checkOrder.push(el)
+                    return true
                 }
             })
+            console.log({checkOrder})
+            if (checkOrder.length === 0) {
 
-            const orderList = products.map(el => `Товар:  ${el.name}, количество:  ${el.count}`).join('\n');
+                await bot.answerWebAppQuery(queryId, {
+                    type: 'article',
+                    id: queryId,
+                    title: 'Заказ отправлен',
+                    input_message_content: {
+                        message_text: 'Поздравляю вы купили на сумму ' + totalPrice
+                    }
+                })
 
-            await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/29.webp');
-            await bot.sendMessage(myChatId, `У вас хотят сделать заказ из ${place}`);
-            await bot.sendMessage(myChatId, `Список заказа:\n${orderList}`);
+                const orderList = products.map(el => `Товар:  ${el.name}, количество:  ${el.count}`).join('\n');
 
-            return res.status(200).json({})
+
+                await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/29.webp');
+                await bot.sendMessage(myChatId, `У вас хотят сделать заказ из ${place}`);
+                await bot.sendMessage(myChatId, `Список заказа:\n${orderList}`);
+
+                return res.status(200).json({})
+            } else {
+                const stopList = checkOrder.map(el => `Товар:  ${el.name}, к сожалению закончился`).join('\n');
+                await bot.answerWebAppQuery(queryId, {
+                    type: 'article',
+                    id: queryId,
+                    title: 'Заказ не отправлен',
+                    input_message_content: {
+                        message_text: stopList + '\nПовторите пожалуйста ваш заказ, без этих позиций'
+                    }
+                })
+                return res.status(200).json({})
+            }
+
         } catch (err) {
             console.warn(err)
             await bot.answerWebAppQuery(queryId, {
@@ -101,9 +128,9 @@ export const startRoutes = (myChatId, adminsId) => {
     app.get('/allProducts', (async (req, res) => {
         try {
 
-            const posts = await Product.find();
+            const productList = await Product.find();
 
-            res.json(posts)
+            res.json(productList)
 
         } catch (err) {
             console.log(err)
@@ -189,7 +216,7 @@ export const startRoutes = (myChatId, adminsId) => {
 
         try {
             const doc = await Product.findOneAndDelete(
-                { _id: productId }
+                {_id: productId}
             )
 
             if (!doc) {
