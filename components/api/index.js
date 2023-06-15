@@ -1,11 +1,41 @@
 import {app} from "../http/index.js";
 import {bot} from "../tg/index.js";
-import {Category, Product} from "../mongoDB/index.js";
+import {Category, Product, Subscribers} from "../mongoDB/index.js";
 import jwt from "jsonwebtoken";
 import chekAuth from "../utils/chekAuth.js";
 
 
 export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey) => {
+
+    app.post('/saveUser', (async (req, res) => {
+
+        const {userId, first_name, last_name, username} = req.body;
+
+        try {
+            const doc = new Subscribers({
+                userId,
+                first_name,
+                last_name,
+                username
+
+            })
+
+            const checkUser = await Subscribers.findOne(
+                {userId}
+            )
+
+            if(!checkUser) {
+                await doc.save();
+                res.status(200).json('Пользователь сохранен');
+            } else {
+                res.status(200).json("Пользователь существует");
+            }
+
+        } catch (err) {
+            console.warn(err);
+            return res.status(400).json("Ошибка при сохранении пользователя")
+        }
+    }))
 
     app.post('/isAdmin', (async (req, res) => {
 
