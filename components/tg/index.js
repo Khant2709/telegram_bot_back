@@ -18,7 +18,7 @@ const userPlace = {
 }
 
 export let bot = {};
-export const startTelegram = (telegramToken, webAppUrl, myChatId) => {
+export const startTelegram = (telegramToken, webAppUrl, workChatId) => {
      bot = new TelegramBot(telegramToken, {polling: true});
 
      bot.on('message', async (msg) => {
@@ -97,8 +97,8 @@ export const startTelegram = (telegramToken, webAppUrl, myChatId) => {
           const chatId = msg.message.chat.id;
 
           await bot.sendMessage(chatId, `Кальянный мастер в ближайшее время подойдет к вам.`);
-          await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/7.webp');
-          await bot.sendMessage(myChatId, `Вас зовет гость из :  ${msg.data}`);
+          await bot.sendSticker(workChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/7.webp');
+          await bot.sendMessage(workChatId, `Вас зовет гость из :  ${msg.data}`);
 
           // выключаем обработчик после выбора места
           bot.off('callback_query', onChoosePlace);
@@ -108,8 +108,8 @@ export const startTelegram = (telegramToken, webAppUrl, myChatId) => {
           const chatId = msg.message.chat.id;
 
           await bot.sendMessage(chatId, `Мастер сейчас кинет угли и подойдет для уточнения вкуса`);
-          await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/21.webp');
-          await bot.sendMessage(myChatId, `Гости хотят новый кальян из :  ${msg.data}`);
+          await bot.sendSticker(workChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/21.webp');
+          await bot.sendMessage(workChatId, `Гости хотят новый кальян из :  ${msg.data}`);
 
           // выключаем обработчик после выбора места
           bot.off('callback_query', newHookahForPlace);
@@ -119,8 +119,8 @@ export const startTelegram = (telegramToken, webAppUrl, myChatId) => {
           const chatId = msg.message.chat.id;
 
           await bot.sendMessage(chatId, `Мастер сейчас кинет угли и подойдет для уточнения вкуса`);
-          await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/1.webp');
-          await bot.sendMessage(myChatId, `Гости хотят поменять чашу из :  ${msg.data}`);
+          await bot.sendSticker(workChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/1.webp');
+          await bot.sendMessage(workChatId, `Гости хотят поменять чашу из :  ${msg.data}`);
 
           // выключаем обработчик после выбора места
           bot.off('callback_query', refreshHookahForPlace);

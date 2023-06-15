@@ -9,9 +9,9 @@ app.use(express.json());
 app.use(cors());
 app.use('/', express.static('../www'));
 
-export const startServer = (PORT, myChatId, adminsId) => {
+export const startServer = (PORT, myChatId, workChatId, adminsId, password, secretKey) => {
     app.listen(PORT, () => {
         console.log('Server started on port: ' + PORT);
-        startRoutes(myChatId, adminsId);
+        startRoutes(myChatId, workChatId, adminsId, password, secretKey);
     })
 }

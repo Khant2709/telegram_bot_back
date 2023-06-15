@@ -1,15 +1,39 @@
 import {app} from "../http/index.js";
 import {bot} from "../tg/index.js";
 import {Category, Product} from "../mongoDB/index.js";
+import jwt from "jsonwebtoken";
+import chekAuth from "../utils/chekAuth.js";
 
-export const startRoutes = (myChatId, adminsId) => {
+
+export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey) => {
 
     app.post('/isAdmin', (async (req, res) => {
 
         try {
+            const chekPassword = password === req.body.password;
             const isAdmin = JSON.parse(adminsId).some(el => el === String(req.body.id));
 
-            return res.status(200).json(isAdmin);
+            if(!chekPassword) {
+                return res.status(404).json({
+                    message: 'Не верный пароль'
+                })
+            }
+
+            if(!isAdmin) {
+                await bot.sendMessage(myChatId, `Меня пытаются взломать! (${req.body.id})`);
+                return res.status(404).json({
+                    message: 'Ошибка входа'
+                })
+            }
+
+            const tokenUser = await jwt.sign({
+                id: req.body.id
+            }, secretKey, {
+                expiresIn: '30d'
+            })
+
+
+            return res.status(200).json({isAdmin, tokenUser});
         } catch (err) {
             console.warn(err);
             return res.status(400)
@@ -45,9 +69,9 @@ export const startRoutes = (myChatId, adminsId) => {
                     }
                 })
 
-                await bot.sendSticker(myChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/29.webp');
-                await bot.sendMessage(myChatId, `У вас хотят сделать заказ из ${place}`);
-                await bot.sendMessage(myChatId, `Список заказа:\n${orderList}`);
+                await bot.sendSticker(workChatId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/29.webp');
+                await bot.sendMessage(workChatId, `У вас хотят сделать заказ из ${place}`);
+                await bot.sendMessage(workChatId, `Список заказа:\n${orderList}`);
 
                 return res.status(200).json({})
             } else {
@@ -90,7 +114,7 @@ export const startRoutes = (myChatId, adminsId) => {
             })
         }
     }))
-    app.post('/addCategory', (async (req, res) => {
+    app.post('/addCategory', chekAuth, (async (req, res) => {
 
         const {name, nameRu, queryId} = req.body;
         console.log({name, nameRu, queryId})
@@ -134,7 +158,7 @@ export const startRoutes = (myChatId, adminsId) => {
             })
         }
     }))
-    app.post('/addProduct', (async (req, res) => {
+    app.post('/addProduct', chekAuth, (async (req, res) => {
 
         const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
         console.log({category, categoryRu, name, description, price, isStop, queryId})
@@ -170,7 +194,7 @@ export const startRoutes = (myChatId, adminsId) => {
         }
 
     }))
-    app.patch('/updateProduct', (async (req, res) => {
+    app.patch('/updateProduct', chekAuth, (async (req, res) => {
         const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
 
         try {
@@ -195,7 +219,7 @@ export const startRoutes = (myChatId, adminsId) => {
                 id: queryId,
                 title: 'Категория создана',
                 input_message_content: {
-                    message_text: `Изменения товара ${name} прошло успешно`
+                    message_text: `Изменения товара: ${name} прошло успешно`
                 }
             })
 
@@ -211,7 +235,7 @@ export const startRoutes = (myChatId, adminsId) => {
         }
     }))
 
-    app.delete('/deleteProduct/:id', (async (req, res) => {
+    app.delete('/deleteProduct/:id', chekAuth, (async (req, res) => {
         const productId = req.params.id;
 
         try {
