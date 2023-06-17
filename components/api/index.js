@@ -24,7 +24,7 @@ export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey)
                 {userId}
             )
 
-            if(!checkUser) {
+            if (!checkUser) {
                 await doc.save();
                 res.status(200).json('Пользователь сохранен');
             } else {
@@ -36,6 +36,23 @@ export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey)
             return res.status(400).json("Ошибка при сохранении пользователя")
         }
     }))
+    app.post('/pushPromotion', chekAuth, (async (req, res) => {
+
+        try {
+            const subscribersList = await Subscribers.find();
+
+            await subscribersList.forEach(el => {
+                bot.sendSticker(el.userId, 'https://tlgrm.eu/_/stickers/837/98f/83798fe7-d57e-300a-93fa-561e3027691e/192/4.webp')
+                bot.sendMessage(el.userId, req.body.message)
+            })
+
+            return res.status(200).json('Рассылка прошла успешно')
+
+        } catch (err) {
+            console.warn(err)
+            return res.status(500).json('Рассылка не прошла')
+        }
+    }))
 
     app.post('/isAdmin', (async (req, res) => {
 
@@ -43,13 +60,13 @@ export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey)
             const chekPassword = password === req.body.password;
             const isAdmin = JSON.parse(adminsId).some(el => el === String(req.body.id));
 
-            if(!chekPassword) {
+            if (!chekPassword) {
                 return res.status(404).json({
                     message: 'Не верный пароль'
                 })
             }
 
-            if(!isAdmin) {
+            if (!isAdmin) {
                 await bot.sendMessage(myChatId, `Меня пытаются взломать! (${req.body.id})`);
                 return res.status(404).json({
                     message: 'Ошибка входа'
@@ -190,7 +207,17 @@ export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey)
     }))
     app.post('/addProduct', chekAuth, (async (req, res) => {
 
-        const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
+        const {
+            category,
+            categoryRu,
+            name,
+            description,
+            price,
+            promotionTimeStart,
+            promotionTimeFinish,
+            isStop,
+            queryId
+        } = req.body;
         console.log({category, categoryRu, name, description, price, isStop, queryId})
 
         try {
@@ -225,7 +252,17 @@ export const startRoutes = (myChatId, workChatId, adminsId, password, secretKey)
 
     }))
     app.patch('/updateProduct', chekAuth, (async (req, res) => {
-        const {category, categoryRu, name, description, price, promotionTimeStart, promotionTimeFinish, isStop, queryId} = req.body;
+        const {
+            category,
+            categoryRu,
+            name,
+            description,
+            price,
+            promotionTimeStart,
+            promotionTimeFinish,
+            isStop,
+            queryId
+        } = req.body;
 
         try {
             await Product.updateOne(
