@@ -6,7 +6,7 @@ const secretKey = process.env.SECRET_TOKEN_ADMIN;
 const adminsId = process.env.ADMINS_ID;
 
 export default (req, res, next) => {
-    const {token} = req.body;
+    const {token} = req.body.token ? req.body : req.query;
 
     if (token) {
         try {

@@ -16,6 +16,9 @@ const PORT = process.env.PORT;
 const password = process.env.PASSWORD_ADMIN;
 const secretKey = process.env.SECRET_TOKEN_ADMIN;
 
-startMongo(mongoDBServer);
-startServer(PORT, myChatId, workChatId, adminsId, password, secretKey);
-startTelegram(telegramToken, webAppUrl, workChatId);
+(async () => {
+    await startServer(PORT, myChatId, workChatId, adminsId, password, secretKey);
+    await startMongo(mongoDBServer);
+    await startTelegram(telegramToken, webAppUrl, workChatId);
+})();
+
