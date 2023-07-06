@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
+import {mongoDBServer} from "../../hidedData.js";
 
 import {Category as categoryModel} from "../../models/Category.js";
 import {Product as productModel} from "../../models/Product.js";
 import {Subscribers as subscribersModel} from "../../models/subscribersList.js";
-import {Reservation as reservationModel} from "../../models/Reservation.js";
+import {ReservationCRM as ReservationCRMModel} from "../../models/ReservationCRM.js";
+import {Booking as BookingModel} from "../../models/Booking.js";
 
 
-export const startMongo = (mongoDBServer) => {
+export const startMongo = () => {
     mongoose
         .connect(mongoDBServer)
         .then(() => {
@@ -20,4 +22,5 @@ export const startMongo = (mongoDBServer) => {
 export const Category = categoryModel;
 export const Product = productModel;
 export const Subscribers = subscribersModel;
-export const Reservation = reservationModel;
+export const ReservationCRM = ReservationCRMModel;
+export const Booking = BookingModel;
